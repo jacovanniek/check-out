@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-out: Riding data user and activity info</title>
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center; /* Center align for loading and thank you messages */
+        }
+        #reader {
+            width: 300px;
+            margin: 0 auto;
+        }
+        form {
+            max-width: 400px;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+        }
+        input, select {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+        /* Style for the Submit button (red) */
+        input[type="submit"] {
+            background-color: #e02525;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        /* Style for the Rescan button (gray) */
+        #rescanBtn {
+            background-color: gray;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #9b9696;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #381515;
+        }
+                /* Optional: Add some hover effects for better user experience */
+                input[type="submit"]:hover {
+            background-color: darkred;
+        }
+
+        #rescanBtn:hover {
+            background-color: darkgray;
+        }
+        #loading, #thankYou {
+            display: none; /* Hide loading initially */
+            text-align: center;
+            margin-top: 20px;
+        }
+        /* Spinner styles */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #e02525;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto; /* Center the spinner */
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+    </style>
+            <!-- input, select {
+                font-size: 16px; /* Change this value to increase/decrease size */
+                font-family: Arial, sans-serif; /* Change to your preferred font */
+                margin: 5px 0; /* Optional: adds spacing between fields */
+            } -->
+    <!-- QR Code Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+</head>
+<body>
+
+    <img src="leatt-logo-2.jpg" alt="Logo" style="position: absolute; top: 10px; left: 10px; width: 100px; height: auto;">
+    
+    <!-- <h1 style="display: inline-block; margin-left: 20px; vertical-align: top;">Ride details</h1> Adjust margin-left for spacing -->
+    <h1 style="margin-top: 120px;">Check-out details</h1> <!-- Adjust margin-top based on logo height -->
+    <p>Please scan the QR code on your datalogger (look on the backside or under the straps) and select your activity type.</p> <!-- Introductory paragraph -->
+
+    <!-- QR Code Scanner Display -->
+    <div id="reader" style="width: 100%;"></div>
+    <!-- <button id="stopScanner" style="display: none;">Stop Scanner</button> -->
+
+    <!-- Form Display -->
+    <form id="myForm">
+        <label for="qrCodeValue">QR Code Value:</label>
+        <input type="text" id="qrCodeValue" name="qrCodeValue" required><br><br>
+
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <!-- <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br> -->
+
+        <label for="phone">Phone:</label>
+        <input type="text" id="phone" name="phone" required><br><br>
+
+        <label for="activityType">Activity Type:</label>
+        <select id="activityType" name="activityType" required>
+            <option value="MTB - XC / Gravel">MTB - XC / Gravel</option>
+            <option value="MTB - Enduro / DH">MTB - Enduro / DH</option>
+            <option value="Moto - ADV / General">Moto - ADV / Road</option>
+            <option value="Moto - ADV / General">Moto - MX</option>
+            <option value="Moto - MX / Enduro">Moto - Enduro</option>
+            <option value="Equestrian">Equestrian</option>
+            <option value="Other">Other</option>
+        </select><br><br>
+
+
+        
+<!--          // Yes/No Selector for Crash/Fall
+        <label for="crashFall">Did you have a crash / fall during your ride?</label>
+        <select id="crashFall" name="crashFall" required>
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+        </select><br><br>
+
+        // Time Dropdown Selection
+        <div id="timeDiv" style="display:none;">
+            <label for="rideTime">Approximate time of crash (HH:MM):</label>
+            <select id="rideTime" name="rideTime">
+                //Time options will be generated here by JavaScript
+            </select>
+        </div><br>
+
+        // Yes/No Selector for Near Misses
+        <label for="nearMiss">Did you have any near misses (almost crashed/fell)?</label>
+        <select id="nearMiss" name="nearMiss" required>
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+        </select><br><br> 
+-->
+
+        <input type="submit" value="Submit">
+        <button type="button" id="rescanBtn">Rescan</button> <!-- rescan button-->
+        <!-- <button type="submit">Submit</button> -->
+    </form>
+
+    <p id="responseMessage"></p>
+    <div id="loading">
+        <div class="spinner"></div> <!-- Loading spinner -->
+        Loading...
+    </div> <!-- Loading message -->
+    <div id="thankYou">Thank you for submitting the form!</div> <!-- Thank you message -->
+    
+    <script>
+            // Function to generate time dropdown options in 5-minute intervals
+        function generateTimeOptions() {
+            const timeSelect = document.getElementById('rideTime');
+            let startTime = 0; // Starting time in minutes (00:00)
+            let endTime = 1440; // Ending time in minutes (24:00)
+
+            for (let minutes = startTime; minutes < endTime; minutes += 5) {
+                let hours = Math.floor(minutes / 60);
+                let mins = minutes % 60;
+                // Format hours and minutes to be two digits (e.g., 01:05)
+                let timeFormatted = ('0' + hours).slice(-2) + ':' + ('0' + mins).slice(-2);
+                // Create a new option element
+                let option = document.createElement('option');
+                option.value = timeFormatted;
+                option.textContent = timeFormatted;
+                timeSelect.appendChild(option);
+            }
+        }
+        // Call the function when the page loads
+        window.onload = function() {
+                generateTimeOptions();
+
+                document.getElementById('crashFall').addEventListener('change', function() {
+                    var crashFallValue = this.value;
+                    var timeDiv = document.getElementById('timeDiv');
+                    var rideTimeInput = document.getElementById('rideTime');
+                
+                    if (crashFallValue === 'Yes') {
+                        timeDiv.style.display = 'block';  // Show the time input
+                        rideTimeInput.required = true;    // Make it required
+                    } else {
+                        timeDiv.style.display = 'none';   // Hide the time input
+                        rideTimeInput.value = '';         // Clear the time input
+                        rideTimeInput.required = false;   // Make it optional
+                    }
+                });
+            };
+    </script>     
+
+
+    <script>
+        const html5QrCodeScanner = new Html5Qrcode("reader", {
+            experimentalFeatures: {
+                useBarCodeDetectorIfSupported: true
+            },
+            formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE]
+        });
+
+        function onScanSuccess(decodedText, decodedResult) {
+            document.getElementById("qrCodeValue").value = decodedText;
+            html5QrCodeScanner.stop().then(() => {
+                document.getElementById("reader").style.display = "none"; // Hide QR reader after scan
+            }).catch(err => {
+                console.error("Error stopping scanner:", err);
+            });
+        }
+
+        // Start scanning when the page loads
+        html5QrCodeScanner.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: 250 },
+            onScanSuccess
+        ).catch(err => {
+            console.error("Failed to start scanning:", err);
+        });
+
+        // Rescan button
+        document.getElementById("rescanBtn").addEventListener("click", function() {
+            document.getElementById("reader").style.display = "block"; // Show the scanner
+            html5QrCodeScanner.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 250 },
+                onScanSuccess
+            );
+        });
+        
+
+        // Form submission
+        document.getElementById('myForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            // // Show loading message
+            // document.getElementById('loading').style.display = 'block';
+
+            // Hide QR scanner and form fields
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+            document.getElementById("reader").style.display = "none";
+            this.style.display = "none";
+            document.getElementById("loading").style.display = "block"; // Show loading message
+
+            // Hide the introductory paragraph when loading
+            document.querySelector("p").style.display = "none"; // Hide introductory paragraph
+
+
+            // Get form data
+            const formData = new URLSearchParams(new FormData(this)).toString();
+
+            // Update the URL with your web app deployment URL ***************************************
+            // const url = `https://script.google.com/macros/s/AKfycbwaICXHotyVGLW4FnZF7gfXU--tNBfWjlzXdT0rKdUpQ2RF9R6tO9NHmD9t9u5zDQ/exec?${formData}`;
+            
+            const url = `https://script.google.com/macros/s/AKfycbyjfezorNIQifnY0IogLOS5HUaovXLJqjXMAn8Qlf-iQyAd4MJ8YfdxPTMA4QL8OOJnmA/exec?${formData}`;
+
+            // Use Fetch API to send data to the Google Apps Script
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('responseMessage').innerText = 'Thank you for submitting the form!';
+                    // document.getElementById('myForm').reset(); // Reset form fields
+                    // document.getElementById('myForm').style.display = 'none'; // Hide form
+                    document.getElementById('loading').style.display = 'none'; // Hide loading message
+                    console.log('Success:', data);
+                })
+                .catch((error) => {
+                    document.getElementById('responseMessage').innerText = 'Error submitting form: ' + error;
+                    console.error('Submission error:', error);
+                    document.getElementById('loading').style.display = 'none'; // Hide loading message on error
+                });
+        });
+    </script>
+
+</body>
+</html>
