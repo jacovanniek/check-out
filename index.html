@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout: Riding data user and activity info</title>
+    <title>Check-out: Riding data user and activity info</title>
     <style>
 
         body {
@@ -264,7 +264,9 @@
             const formData = new URLSearchParams(new FormData(this)).toString();
 
             // Update the URL with your web app deployment URL ***************************************
-            const url = `https://script.google.com/macros/s/AKfycbwaICXHotyVGLW4FnZF7gfXU--tNBfWjlzXdT0rKdUpQ2RF9R6tO9NHmD9t9u5zDQ/exec?${formData}`;
+            // const url = `https://script.google.com/macros/s/AKfycbwaICXHotyVGLW4FnZF7gfXU--tNBfWjlzXdT0rKdUpQ2RF9R6tO9NHmD9t9u5zDQ/exec?${formData}`;
+            
+            const url = `https://script.google.com/macros/s/AKfycbyjfezorNIQifnY0IogLOS5HUaovXLJqjXMAn8Qlf-iQyAd4MJ8YfdxPTMA4QL8OOJnmA/exec?${formData}`;
 
             // Use Fetch API to send data to the Google Apps Script
             fetch(url)
