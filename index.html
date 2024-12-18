@@ -263,16 +263,10 @@
             // Get form data
             const formData = new URLSearchParams(new FormData(this)).toString();
 
-            // Update the URL with your web app deployment URL ***************************************
-            // const url = `https://script.google.com/macros/s/AKfycbwaICXHotyVGLW4FnZF7gfXU--tNBfWjlzXdT0rKdUpQ2RF9R6tO9NHmD9t9u5zDQ/exec?${formData}`;
+            // Construct the script URL
+            const scriptURL = `https://script.google.com/macros/s/AKfycbwdP2fxvDrl4mIkjJTuvTPoDPUBQ-0LRClkDWUxZ5f8lFqKrK7ggpF4sr0qDlwNPerYtg/exec?${formData}`;
+            console.log('Submitting URL:', scriptURL);
             
-            // const url = `https://script.google.com/macros/s/AKfycbyjfezorNIQifnY0IogLOS5HUaovXLJqjXMAn8Qlf-iQyAd4MJ8YfdxPTMA4QL8OOJnmA/exec?${formData}`;
-
-            //*******************************************************
-            // Construct the URL for the Apps Script with formType=checkout
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbyjfezorNIQifnY0IogLOS5HUaovXLJqjXMAn8Qlf-iQyAd4MJ8YfdxPTMA4QL8OOJnmA/exec?formType=checkout&qrCodeValue=' + encodeURIComponent(qrCodeValue);
-            
-
             // Use Fetch API to send data to the Google Apps Script
             fetch(scriptURL)
                 .then(response => response.text())
