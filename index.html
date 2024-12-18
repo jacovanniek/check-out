@@ -104,7 +104,7 @@
     <!-- <button id="stopScanner" style="display: none;">Stop Scanner</button> -->
 
     <!-- Form Display -->
-    <form id="myForm">
+    <form id="checkoutForm">
         <label for="qrCodeValue">QR Code Value:</label>
         <input type="text" id="qrCodeValue" name="qrCodeValue" required><br><br>
 
@@ -244,7 +244,7 @@
         
 
         // Form submission
-        document.getElementById('myForm').addEventListener('submit', function(e) {
+        document.getElementById('checkoutForm').addEventListener('submit', function(e) {
             e.preventDefault(); // Prevent the default form submission
 
             // // Show loading message
@@ -266,10 +266,15 @@
             // Update the URL with your web app deployment URL ***************************************
             // const url = `https://script.google.com/macros/s/AKfycbwaICXHotyVGLW4FnZF7gfXU--tNBfWjlzXdT0rKdUpQ2RF9R6tO9NHmD9t9u5zDQ/exec?${formData}`;
             
-            const url = `https://script.google.com/macros/s/AKfycbyjfezorNIQifnY0IogLOS5HUaovXLJqjXMAn8Qlf-iQyAd4MJ8YfdxPTMA4QL8OOJnmA/exec?${formData}`;
+            // const url = `https://script.google.com/macros/s/AKfycbyjfezorNIQifnY0IogLOS5HUaovXLJqjXMAn8Qlf-iQyAd4MJ8YfdxPTMA4QL8OOJnmA/exec?${formData}`;
+
+            //*******************************************************
+            // Construct the URL for the Apps Script with formType=checkout
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyjfezorNIQifnY0IogLOS5HUaovXLJqjXMAn8Qlf-iQyAd4MJ8YfdxPTMA4QL8OOJnmA/exec?formType=checkout&qrCodeValue=' + encodeURIComponent(qrCodeValue);
+            
 
             // Use Fetch API to send data to the Google Apps Script
-            fetch(url)
+            fetch(scriptURL)
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('responseMessage').innerText = 'Thank you for submitting the form!';
